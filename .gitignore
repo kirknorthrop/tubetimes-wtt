@@ -1,0 +1,7 @@
+*.py[cod]
+.DS_Store?
+.Spotlight-V100
+.Trashes
+*.pdf
+*.xml
+*.xls
