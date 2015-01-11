@@ -4,7 +4,7 @@
 # London Underground Working Timetable Spreadsheet converter
 # Created as part of the tubetimes project at http://tubetim.es/
 #
-# Copyright (c) 2014 Kirk Northrop <kirk@krn.me.uk>
+# Copyright (c) 2015 Kirk Northrop <kirk@krn.me.uk>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -30,8 +30,12 @@
 from bs4 import BeautifulSoup
 import re
 import sys
+from datetime import datetime, timedelta, time
 from xlwt import Workbook, easyxf
 import linedata
+from model import Base, Station, Line, JourneyPatternSection, Route, RouteSection, Service, JourneyPattern, VehicleJourney, ServicePoint, FixedTimeLink, StationCode, NewRoute, NewTimePoint, TrackernetLine, TrackernetStation
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
 
 # Default styles for Tube WTTs
 NORMAL_STYLE = easyxf('font: height 140;')
@@ -56,6 +60,10 @@ rows = line['rows']
 time_regex = re.compile('(\d\d)(\s*[A-Za-z+ ]\s*)(\d\d)(\d\d)?')
 strip_tags_regex = re.compile('(.*?)<.+?>(.*?)</.+>(.*?)')
 
+
+engine = create_engine('postgresql://kirk:@127.0.0.1/tubetimes')# , echo=True)
+Session = sessionmaker(bind=engine)
+session = Session()
 
 # So we need to create workbooks for all the variations
 for variation in variations:
@@ -125,23 +133,20 @@ for page in soup.pdf2xml.find_all('page'):
                     if row_no is not None and col_no is not None and cell_value:
                         output[row_no][col_no] += str(cell_value)
 
-            for i, row in enumerate(output):
-                for column in row:
-                    if time_regex.match(column):
-                        time_values = time_regex.match(column).groups(0)
-                        
-                        detail_letter = time_values[1] if len(time_values[1]) == 1 else time_values[1].strip()
-                        column = time_values[0] + detail_letter + time_values[2]
+            # for i, row in enumerate(output):
+            #     for column in row:
+            #         if time_regex.match(column):
+            #             time_values = time_regex.match(column).groups(0)
 
-                        if time_values[3] == '14':
-                            column += u'¼'
-                        elif time_values[3] == '12':
-                            column += u'½'
-                        elif time_values[3] == '34':
-                            column += u'¾'
+            #             detail_letter = time_values[1] if len(time_values[1]) == 1 else time_values[1].strip()
+            #             column = time_values[0] + detail_letter + time_values[2]
 
-                        if rows[page_direction]['stations'].get(i):
-                            print '%s at %s' % (rows[page_direction]['stations'][i], column)
+            #             if time_values[3] == '14':
+            #                 column += u'¼'
+            #             elif time_values[3] == '12':
+            #                 column += u'½'
+            #             elif time_values[3] == '34':
+            #                 column += u'¾'
 
         if variations[page_direction][page_day]['state'].get('column', None) is None or (variations[page_direction][page_day]['state'].get('column') + len(output[0])) > 255:
             ws = variations[page_direction][page_day]['output'].add_sheet('Page ' + page['number'])
@@ -167,18 +172,103 @@ for page in soup.pdf2xml.find_all('page'):
 
                     if time_regex.match(column):
                         time_values = time_regex.match(column).groups(0)
+                        hour = int(time_values[0]) % 24
+                        minute = int(time_values[2])
+                        arrival_offset = time_values[1] if len(time_values[1]) == 1 else time_values[1].strip()
                         
-                        detail_letter = time_values[1] if len(time_values[1]) == 1 else time_values[1].strip()
-                        val = time_values[0] + detail_letter + time_values[2]
-
                         if time_values[3] == '14':
-                            val += u'¼'
+                            seconds = 15
                         elif time_values[3] == '12':
-                            val += u'½'
+                            seconds  = 30
                         elif time_values[3] == '34':
-                            val += u'¾'
-            
-                        ws.write(i, j + column_offset, val, selected_style)
+                            seconds = 45
+                        else:
+                            seconds = 0
+
+                        # The exact departure time in the WTT
+                        departure_time = datetime(2015, 1, 1, hour, minute, seconds)
+                        arrival_time = departure_time
+                        if arrival_offset.strip():
+                            arrival_time = departure_time - timedelta(seconds=linedata.ARRIVAL_OFFSETS[arrival_offset])
+
+                        # Convert the departure and arrival datetimes to time (because you can't do timedelta on time)
+                        departure_time = departure_time.time()
+                        arrival_time = arrival_time.time()
+
+                        # These are purely for the benefit of searching
+                        departure_time_start = time(hour, minute)
+                        if minute + 1 > 59:
+                            departure_time_end = time((hour + 1) % 24, 0)
+                        else:
+                            departure_time_end = time(hour, minute + 1)
+                        
+
+                        if rows[page_direction]['stations'].get(i):
+                            servicepoints_query = session.query(
+                                ServicePoint
+                            ).filter_by(
+                                station_id=rows[page_direction]['stations'][i], 
+                                line_id=line['line_id'],
+                                direction=rows[page_direction]['direction']
+                            )
+
+                            possible_servicepoints = []
+                            for point in servicepoints_query.all():
+                                possible_servicepoints.append(point.id)
+
+                            trips_query = session.query(
+                                NewTimePoint
+                            ).filter(
+                                NewTimePoint.servicepoint_id.in_(possible_servicepoints)
+                            ).filter(
+                                NewTimePoint.departure.between(departure_time_start, departure_time_end)
+                            )
+
+                            # Complicated DOW running stuff
+                            if page_day == linedata.WEEKDAYS and hour > 3:
+                                trips_query = trips_query.filter_by(
+                                    runs_monday=True
+                                )
+                            elif page_day == linedata.WEEKDAYS and hour < 3:
+                                trips_query = trips_query.filter_by(
+                                    runs_tuesday=True
+                                )
+                            elif page_day == linedata.SATURDAY and hour > 3:
+                                trips_query = trips_query.filter_by(
+                                    runs_saturday=True
+                                )
+                            elif page_day == linedata.SATURDAY and hour < 3:
+                                trips_query = trips_query.filter_by(
+                                    runs_sunday=True
+                                )
+                            elif page_day == linedata.SUNDAY and hour > 3:
+                                trips_query = trips_query.filter_by(
+                                    runs_sunday=True
+                                )
+                            elif page_day == linedata.SUNDAY and hour < 3:
+                                trips_query = trips_query.filter_by(
+                                    runs_monday=True
+                                )
+
+                            possible_trips = []
+                            for trip in trips_query.all():
+                                possible_trips.append(str(trip.trip))
+
+                            set_no = re.search('(\d+)', output[1][j]).group(0)
+                            trip_no = output[2][j]
+                            if len(possible_trips) == 1:
+                                time_point_query = session.query(
+                                    NewTimePoint
+                                ).filter_by(
+                                    trip=possible_trips[0]
+                                )
+
+                                for timepoint in time_point_query.all():
+                                    timepoint.set_no = set_no
+                                    timepoint.trip_no = trip_no
+                                session.commit()
+
+                        # ws.write(i, j + column_offset, val, selected_style)
                     else:
                         ws.write(i, j + column_offset, column, selected_style)
 
