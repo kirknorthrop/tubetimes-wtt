@@ -250,22 +250,27 @@ for page in soup.pdf2xml.find_all('page'):
                                     runs_monday=True
                                 )
 
-                            possible_trips = []
-                            for trip in trips_query.all():
-                                possible_trips.append(str(trip.trip))
+                            possible_trips = trips_query.all()
 
-                            set_no = re.search('(\d+)', output[1][j]).group(0)
-                            trip_no = output[2][j]
                             if len(possible_trips) == 1:
-                                time_point_query = session.query(
-                                    NewTimePoint
-                                ).filter_by(
-                                    trip=possible_trips[0]
-                                )
+                                # Set the arrival/departure time to match the WTT
+                                possible_trips[0].arrival = arrival_time
+                                possible_trips[0].departure = departure_time
 
-                                for timepoint in time_point_query.all():
-                                    timepoint.set_no = set_no
-                                    timepoint.trip_no = trip_no
+                                if not possible_trips[0].set_no:
+                                    set_no = re.search('(\d+)', output[1][j]).group(0)
+                                    trip_no = output[2][j]
+
+                                    time_point_query = session.query(
+                                        NewTimePoint
+                                    ).filter_by(
+                                        trip=possible_trips[0].trip
+                                    )
+
+                                    for timepoint in time_point_query.all():
+                                        timepoint.set_no = set_no
+                                        timepoint.trip_no = trip_no
+
                                 session.commit()
 
                         # ws.write(i, j + column_offset, val, selected_style)
