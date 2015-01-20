@@ -4,7 +4,7 @@
 # London Underground Working Timetable Spreadsheet converter
 # Created as part of the tubetimes project at http://tubetim.es/
 #
-# Copyright (c) 2014 Kirk Northrop <kirk@krn.me.uk>
+# Copyright (c) 2015 Kirk Northrop <kirk@krn.me.uk>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -139,9 +139,6 @@ for page in soup.pdf2xml.find_all('page'):
                             column += u'½'
                         elif time_values[3] == '34':
                             column += u'¾'
-
-                        if rows[page_direction]['stations'].get(i):
-                            print '%s at %s' % (rows[page_direction]['stations'][i], column)
 
         if variations[page_direction][page_day]['state'].get('column', None) is None or (variations[page_direction][page_day]['state'].get('column') + len(output[0])) > 255:
             ws = variations[page_direction][page_day]['output'].add_sheet('Page ' + page['number'])
