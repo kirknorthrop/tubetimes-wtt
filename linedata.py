@@ -254,3 +254,92 @@ PICCADILLY = {
                             }
             }
 }
+
+# Victoria
+VICTORIA = {
+    'line_name': 'Victoria',
+
+    'variations': {
+                    NORTHBOUND:
+                            {
+                                WEEKDAYS: {'output': None, 'state': {}},
+                                SATURDAY: {'output': None, 'state': {}},
+                                SUNDAY  : {'output': None, 'state': {}}
+                            },
+                    SOUTHBOUND:
+                            {
+                                WEEKDAYS: {'output': None, 'state': {}},
+                                SATURDAY: {'output': None, 'state': {}},
+                                SUNDAY  : {'output': None, 'state': {}}                             
+                            }
+                },
+
+    'columns': [160, 198, 231, 263, 296, 328, 361, 393, 426, 458, 490, 523, 555, 588, 620, 653, 685, 718, 750, 782, 815, 892],
+
+    # Everything before this 'top' is header.
+    'header': 108,
+
+    # Everything before these are row names
+    'row_names': [],
+
+    'rows': {
+                NORTHBOUND : {                #  1    2    3    4    5    6    7    8    9   10   11   12   13   14   15   16   17   18   19   20   21   22   23   24   25   26   27   28   29   30   31   32   33   34   35   36   37   38   39   40   41   42   43   44   45   46   47
+                                'rows'      : [108, 126, 144, 153, 161, 179, 187, 196, 205, 213, 222, 231, 239, 248, 257, 270, 284, 292, 300, 309, 321, 330, 343, 352, 361, 373, 381, 387, 396, 405, 413, 422, 431, 443, 448, 465, 474, 482, 491, 500, 515, 525, 534, 540, 587, 596, 604],
+                                'nodashrows': [],
+                                'tableoffsets':[0, 551],
+                                'stations': {
+                                    15: 'BRX',
+                                    16: 'STK',
+                                    17: 'VUX',
+                                    18: 'PIM',
+                                    20: 'VIC',
+                                    21: 'GPK',
+                                    22: 'OXC',
+                                    24: 'WST',
+                                    25: 'EUS',
+                                    26: 'KXX',
+                                    29: 'HBY',
+                                    30: 'FPK',
+                                    33: 'SVS',
+                                    40: 'TTH',
+                                    41: 'BHR',
+                                    42: 'WAL',
+                                },
+                                'platforms': {
+                                    14: 'BRX',
+                                    32: 'SVS',
+                                    43: 'WAL',
+                                },
+                                'direction': 'N'
+                            },
+                SOUTHBOUND : {                #  1    2    3    4    5    6    7    8    9   10   11   12   13   14   15   16   17   18   19   20   21   22   23   24   25   26   27   28   29   30   31   32   33   34   35   36   37   38   39   40   41   42   43   44   45   46   47
+                                'rows'      : [108, 126, 144, 153, 161, 179, 187, 196, 205, 213, 222, 231, 239, 248, 257, 274, 283, 292, 300, 309, 318, 326, 335, 343, 352, 361, 369, 378, 396, 405, 413, 422, 435, 448, 457, 465, 474, 486, 490, 505, 517, 526, 535, 544, 587, 596, 604],
+                                'nodashrows': [],
+                                'tableoffsets':[0, 551],
+                                'stations': {
+                                    16: 'WAL',
+                                    17: 'BHR',
+                                    18: 'TTH',
+                                    26: 'SVS',
+                                    29: 'FPK',
+                                    30: 'HBY',
+                                    32: 'KXX',
+                                    33: 'EUS',
+                                    34: 'WST',
+                                    36: 'OXC',
+                                    37: 'GPK',
+                                    38: 'VIC',
+                                    40: 'PIM',
+                                    41: 'VUX',
+                                    42: 'STK',
+                                    43: 'BRX',
+                                },
+                                'platforms': {
+                                    15: 'WAL',
+                                    27: 'SVS',
+                                    44: 'BRX',
+                                },
+                                'direction': 'S'
+                            }
+            }
+}
