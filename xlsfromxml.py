@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #!/usr/bin/python
 
-# London Underground Working Timetable Spreadsheet converter
+# London Underground Working Timetable PDF converter
 # Created as part of the tubetimes project at http://tubetim.es/
 #
 # Copyright (c) 2015 Kirk Northrop <kirk@krn.me.uk>
@@ -46,7 +46,7 @@ BOLD_ITALIC_STYLE = easyxf('font: height 140, bold true, italic true;')
 
 
 ### SET LINE HERE
-line = linedata.JUBILEE
+line = linedata.PICCADILLY
 
 
 line_name = line['line_name']
@@ -133,21 +133,6 @@ for page in soup.pdf2xml.find_all('page'):
                     if row_no is not None and col_no is not None and cell_value:
                         output[row_no][col_no] += str(cell_value)
 
-            # for i, row in enumerate(output):
-            #     for column in row:
-            #         if time_regex.match(column):
-            #             time_values = time_regex.match(column).groups(0)
-
-            #             detail_letter = time_values[1] if len(time_values[1]) == 1 else time_values[1].strip()
-            #             column = time_values[0] + detail_letter + time_values[2]
-
-            #             if time_values[3] == '14':
-            #                 column += u'¼'
-            #             elif time_values[3] == '12':
-            #                 column += u'½'
-            #             elif time_values[3] == '34':
-            #                 column += u'¾'
-
         if variations[page_direction][page_day]['state'].get('column', None) is None or (variations[page_direction][page_day]['state'].get('column') + len(output[0])) > 255:
             ws = variations[page_direction][page_day]['output'].add_sheet('Page ' + page['number'])
             variations[page_direction][page_day]['state']['current_sheet'] = ws
@@ -155,9 +140,13 @@ for page in soup.pdf2xml.find_all('page'):
         else:
             ws = variations[page_direction][page_day]['state']['current_sheet']
             column_offset = variations[page_direction][page_day]['state']['column']
-        
+
         for i, row in enumerate(output):
             for j, column in enumerate(row):
+
+                # If the first character of the set number is a letter that is not the line_id we are working on, discard the column
+                if output[1][j] and output[1][j].strip()[0:1] not in ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', line['line_id']]:
+                    continue
 
                 if (column_offset == 0 and j not in [len(columns), len(columns) + 1]) or (column_offset > 0 and j not in [0, 1, len(columns), len(columns) + 1]):
                     selected_style = NORMAL_STYLE
@@ -175,7 +164,7 @@ for page in soup.pdf2xml.find_all('page'):
                         hour = int(time_values[0]) % 24
                         minute = int(time_values[2])
                         arrival_offset = time_values[1] if len(time_values[1]) == 1 else time_values[1].strip()
-                        
+
                         if time_values[3] == '14':
                             seconds = 15
                         elif time_values[3] == '12':
@@ -201,7 +190,7 @@ for page in soup.pdf2xml.find_all('page'):
                             departure_time_end = time((hour + 1) % 24, 0)
                         else:
                             departure_time_end = time(hour, minute + 1)
-                        
+
 
                         if rows[page_direction]['stations'].get(i):
                             servicepoints_query = session.query(
@@ -254,11 +243,23 @@ for page in soup.pdf2xml.find_all('page'):
 
                             if len(possible_trips) == 1:
                                 # Set the arrival/departure time to match the WTT
-                                possible_trips[0].arrival = arrival_time
                                 possible_trips[0].departure = departure_time
 
-                                if not possible_trips[0].set_no:
-                                    set_no = re.search('(\d+)', output[1][j]).group(0)
+                                # If DB Arrival matches DB Departure, use WTT Arrival
+                                if possible_trips[0].arrival == possible_trips[0].departure:
+                                    possible_trips[0].arrival = arrival_time
+                                # If DB Arrival does not exist, use WTT Arrival
+                                elif possible_trips[0].arrival is None:
+                                    possible_trips[0].arrival = arrival_time
+                                # If DB Arrival does not equal DB Departure, and DB Arrival does not match WTT Arrival, use WTT arrival:
+                                elif possible_trips[0].arrival != possible_trips[0].departure and possible_trips[0].arrival != arrival_time:
+                                    possible_trips[0].arrival = arrival_time
+                                else:
+                                    # Change nothing
+                                    pass
+
+                                if not possible_trips[0].set_no and output[1][j]:
+                                    set_no = re.search('(\d+)', output[1][j].strip()).group(0)
                                     trip_no = output[2][j]
 
                                     time_point_query = session.query(
@@ -272,10 +273,57 @@ for page in soup.pdf2xml.find_all('page'):
                                         timepoint.trip_no = trip_no
 
                                 session.commit()
-
-                        # ws.write(i, j + column_offset, val, selected_style)
                     else:
-                        ws.write(i, j + column_offset, column, selected_style)
+                        #### IMPORTANT - Currently won't do platforms for trains after midnight
+                        #### Also double Edgware Roads won't work
+                        if rows[page_direction]['platforms'].get(i) and re.search('(\d+)', column.strip()):
+                            servicepoints_query = session.query(
+                                ServicePoint
+                            ).filter_by(
+                                station_id=rows[page_direction]['platforms'][i], 
+                                line_id=line['line_id'],
+                                direction=rows[page_direction]['direction']
+                            )
+
+                            possible_servicepoints = []
+                            for point in servicepoints_query.all():
+                                possible_servicepoints.append(point.id)
+
+                            if output[1][j].strip():
+                                set_no = re.search('(\d+)', output[1][j].strip()).group(0)
+                                trip_no = output[2][j]
+
+                                if set_no and trip_no:
+
+                                    trips_query = session.query(
+                                        NewTimePoint
+                                    ).filter(
+                                        NewTimePoint.servicepoint_id.in_(possible_servicepoints)
+                                    ).filter_by(
+                                        set_no=set_no, trip_no=trip_no
+                                    )
+
+                                    # Complicated DOW running stuff
+                                    if page_day == linedata.WEEKDAYS:
+                                        trips_query = trips_query.filter_by(
+                                            runs_tuesday=True
+                                        )
+                                    elif page_day == linedata.SATURDAY:
+                                        trips_query = trips_query.filter_by(
+                                            runs_saturday=True
+                                        )
+                                    elif page_day == linedata.SUNDAY:
+                                        trips_query = trips_query.filter_by(
+                                            runs_sunday=True
+                                        )
+
+                                    possible_trips = trips_query.all()
+
+                                    if len(possible_trips) == 1:
+                                        if not possible_trips[0].platform:
+                                            possible_trips[0].platform = column.strip()
+
+                                            session.commit()
 
         variations[page_direction][page_day]['state']['column'] = j + column_offset + 1
 
