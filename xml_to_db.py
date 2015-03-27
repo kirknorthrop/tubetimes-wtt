@@ -46,7 +46,7 @@ BOLD_ITALIC_STYLE = easyxf('font: height 140, bold true, italic true;')
 
 
 ### SET LINE HERE
-line = linedata.PICCADILLY
+line = linedata.VICTORIA
 
 
 line_name = line['line_name']
@@ -319,7 +319,7 @@ for page in soup.pdf2xml.find_all('page'):
 
                                     possible_trips = trips_query.all()
 
-                                    if len(possible_trips) == 1:
+                                    if len(possible_trips) == 1 and re.match('(\d+)', column.strip()):
                                         if not possible_trips[0].platform:
                                             possible_trips[0].platform = column.strip()
 
