@@ -40,7 +40,129 @@ ARRIVAL_OFFSETS = {
 }
 
 
-# Jubilee - Needs more stations
+# District
+DISTRICT = {
+    'line_name': 'District',
+    'line_id': 'D',
+
+    'variations': {
+                    WESTBOUND:
+                            {
+                                WEEKDAYS: {'output': None, 'state': {}},
+                                SATURDAY: {'output': None, 'state': {}},
+                                SUNDAY  : {'output': None, 'state': {}}
+                            },
+                    EASTBOUND:
+                            {
+                                WEEKDAYS: {'output': None, 'state': {}},
+                                SATURDAY: {'output': None, 'state': {}},
+                                SUNDAY  : {'output': None, 'state': {}}
+                            }
+                },
+
+    'columns': [160, 198, 231, 263, 296, 328, 361, 393, 426, 458, 490, 523, 555, 588, 620, 653, 685, 718, 750, 782, 815, 892],
+
+    # Everything before this 'top' is header.
+    'header': 108,
+
+    # Everything before these are row names
+    'row_names': [],
+
+    'rows': { # Yes they are different, no, I don't understand why.
+            WESTBOUND: {                  #  1    2    3    4    5    6    7    8    9   10   11   12   13   14   15   16   17   18   19   20   21   22   23   24   25   26   27   28   29   30   31   32   33   34   35   36   37   38   39   40   41   42   43   44   45   46   47   48   49   50   51   52   53   54   55   56
+                            'rows'      : [108, 126, 144, 153, 161, 170, 178, 189, 198, 205, 213, 222, 231, 239, 248, 258, 266, 275, 284, 293, 301, 310, 318, 328, 337, 345, 354, 363, 371, 380, 387, 395, 404, 416, 425, 440, 450, 457, 465, 474, 482, 487, 500, 509, 520, 528, 537, 544, 553, 565, 571, 579, 584, 593, 602, 636],
+                            'nodashrows': [],
+                            'tableoffsets':[0, 543],
+                            'stations': {
+                                11: 'UPM',
+                                12: 'DGE',
+                                14: 'BKG',
+                                15: 'PLW',
+                                17: 'WHM',
+                                18: 'WCL',
+                                19: 'ALE',
+                                20: 'LST',
+                                22: 'ALD',
+                                23: 'THL',
+                                24: 'MAN',
+                                25: 'EMB',
+                                26: 'SKN',
+                                28: 'GRD',
+                                29: 'HST',
+                                32: 'ERD',
+                                34: 'HST',
+                                36: 'ECT',
+                                37: 'PGR',
+                                38: 'PUT',
+                                39: 'EPY',
+                                40: 'WDN',
+                                42: 'OLY',
+                                44: 'WKN',
+                                45: 'HMD',
+                                46: 'TGR',
+                                47: 'RMD',
+                                49: 'ACT',
+                                51: 'ECM',
+                                52: 'EBY',
+                            },
+                            'platforms': {
+                                9: 'UPM',
+                                31: 'ERD',
+                                33: 'HST',
+                                35: 'ECT',
+                                53: 'EBY',
+                            },
+                            'direction': 'W'
+                        },
+            EASTBOUND: {                  #  1    2    3    4    5    6    7    8    9   10   11   12   13   14   15   16   17   18   19   20   21   22   23   24   25   26   27   28   29   30   31   32   33   34   35   36   37   38   39   40   41   42   43   44   45   46   47   48   49   50   51   52   53   54   55
+                            'rows'      : [108, 126, 144, 153, 161, 170, 178, 189, 198, 205, 213, 222, 231, 239, 248, 258, 266, 275, 284, 293, 301, 310, 318, 328, 337, 345, 354, 363, 371, 380, 387, 397, 407, 415, 422, 432, 440, 450, 457, 465, 477, 484, 493, 502, 509, 520, 528, 537, 544, 553, 565, 571, 579, 584, 593, 636],
+                            'nodashrows': [],
+                            'tableoffsets':[0, 543],
+                            'stations': {
+                                8: 'EBY',
+                                10: 'ECM',
+                                12: 'ACT',
+                                14: 'RMD',
+                                15: 'TGR',
+                                16: 'HMD',
+                                17: 'WKN',
+                                19: 'OLY',
+                                21: 'WDN',
+                                22: 'EPY',
+                                23: 'PUT',
+                                24: 'PGR',
+                                25: 'ECT',
+                                28: 'HST',
+                                30: 'ERD',
+                                33: 'HST',
+                                34: 'GRD',
+                                35: 'SKN',
+                                36: 'EMB',
+                                37: 'MAN',
+                                38: 'THL',
+                                39: 'ALD',
+                                41: 'LST',
+                                42: 'ALE',
+                                43: 'WCL',
+                                44: 'WHM',
+                                46: 'PLW',
+                                47: 'BKG',
+                                49: 'DGE',
+                                50: 'UPM',
+                            },
+                            'platforms': {
+                                7: 'EBY',
+                                26: 'ECT',
+                                29: 'HST',
+                                31: 'ERD',
+                                51: 'UPM',
+                            },
+                            'direction': 'E'
+                        }
+            }
+}
+
+# Jubilee
 JUBILEE = {
     'line_name': 'Jubilee',
     'line_id': 'J',
@@ -56,7 +178,7 @@ JUBILEE = {
                             {
                                 WEEKDAYS: {'output': None, 'state': {}},
                                 SATURDAY: {'output': None, 'state': {}},
-                                SUNDAY  : {'output': None, 'state': {}}                             
+                                SUNDAY  : {'output': None, 'state': {}}
                             }
                 },
 
@@ -176,7 +298,7 @@ METROPOLITAN = {
                             {
                                 WEEKDAYS: {'output': None, 'state': {}},
                                 SATURDAY: {'output': None, 'state': {}},
-                                SUNDAY  : {'output': None, 'state': {}}                             
+                                SUNDAY  : {'output': None, 'state': {}}
                             }
                 },
 
@@ -218,7 +340,7 @@ PICCADILLY = {
                             {
                                 WEEKDAYS: {'output': None, 'state': {}},
                                 SATURDAY: {'output': None, 'state': {}},
-                                SUNDAY  : {'output': None, 'state': {}}                             
+                                SUNDAY  : {'output': None, 'state': {}}
                             }
                 },
 
@@ -340,7 +462,7 @@ VICTORIA = {
                             {
                                 WEEKDAYS: {'output': None, 'state': {}},
                                 SATURDAY: {'output': None, 'state': {}},
-                                SUNDAY  : {'output': None, 'state': {}}                             
+                                SUNDAY  : {'output': None, 'state': {}}
                             }
                 },
 
