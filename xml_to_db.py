@@ -191,7 +191,6 @@ for page in soup.pdf2xml.find_all('page'):
                         else:
                             departure_time_end = time(hour, minute + 1)
 
-
                         if rows[page_direction]['stations'].get(i):
                             servicepoints_query = session.query(
                                 ServicePoint
@@ -271,17 +270,14 @@ for page in soup.pdf2xml.find_all('page'):
                                             trip=possible_trips[0].trip
                                         )
 
-                                        # Is this one with a platform in the sidebar?
-                                        if rows[page_direction]['platforms'].get(i) and isinstance(rows[page_direction]['platforms'][i], int):
-                                            platform = rows[page_direction]['platforms'][i]
-
                                         for timepoint in time_point_query.all():
                                             timepoint.set_no = set_no
                                             timepoint.trip_no = trip_no
-                                            if platform:
-                                                timepoint.platform = platform
 
-
+                                # Is this one with a platform in the sidebar?
+                                if not possible_trips[0].platform and rows[page_direction]['platforms'].get(i) and isinstance(rows[page_direction]['platforms'][i], int):
+                                    print possible_trips[0], rows[page_direction]['platforms'][i]
+                                    possible_trips[0].platform = rows[page_direction]['platforms'][i]
 
                                 session.commit()
                     else:
