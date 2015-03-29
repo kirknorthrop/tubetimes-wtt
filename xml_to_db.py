@@ -46,7 +46,7 @@ BOLD_ITALIC_STYLE = easyxf('font: height 140, bold true, italic true;')
 
 
 ### SET LINE HERE
-line = linedata.VICTORIA
+line = linedata.DISTRICT
 
 
 line_name = line['line_name']
@@ -196,7 +196,7 @@ for page in soup.pdf2xml.find_all('page'):
                             servicepoints_query = session.query(
                                 ServicePoint
                             ).filter_by(
-                                station_id=rows[page_direction]['stations'][i], 
+                                station_id=rows[page_direction]['stations'][i],
                                 line_id=line['line_id'],
                                 direction=rows[page_direction]['direction']
                             )
@@ -262,15 +262,17 @@ for page in soup.pdf2xml.find_all('page'):
                                     set_no = re.search('(\d+)', output[1][j].strip()).group(0)
                                     trip_no = output[2][j]
 
-                                    time_point_query = session.query(
-                                        NewTimePoint
-                                    ).filter_by(
-                                        trip=possible_trips[0].trip
-                                    )
+                                    # Some lines contain NR headcodes in their set no data which matches the regex.
+                                    if set_no and trip_no:
+                                        time_point_query = session.query(
+                                            NewTimePoint
+                                        ).filter_by(
+                                            trip=possible_trips[0].trip
+                                        )
 
-                                    for timepoint in time_point_query.all():
-                                        timepoint.set_no = set_no
-                                        timepoint.trip_no = trip_no
+                                        for timepoint in time_point_query.all():
+                                            timepoint.set_no = set_no
+                                            timepoint.trip_no = trip_no
 
                                 session.commit()
                     else:
@@ -280,7 +282,7 @@ for page in soup.pdf2xml.find_all('page'):
                             servicepoints_query = session.query(
                                 ServicePoint
                             ).filter_by(
-                                station_id=rows[page_direction]['platforms'][i], 
+                                station_id=rows[page_direction]['platforms'][i],
                                 line_id=line['line_id'],
                                 direction=rows[page_direction]['direction']
                             )

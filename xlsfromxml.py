@@ -42,7 +42,7 @@ BOLD_ITALIC_STYLE = easyxf('font: height 140, bold true, italic true;')
 
 
 ### SET LINE HERE
-line = linedata.JUBILEE
+line = linedata.DISTRICT
 
 
 line_name = line['line_name']
@@ -129,7 +129,7 @@ for page in soup.pdf2xml.find_all('page'):
                 for column in row:
                     if time_regex.match(column):
                         time_values = time_regex.match(column).groups(0)
-                        
+
                         detail_letter = time_values[1] if len(time_values[1]) == 1 else time_values[1].strip()
                         column = time_values[0] + detail_letter + time_values[2]
 
@@ -147,7 +147,7 @@ for page in soup.pdf2xml.find_all('page'):
         else:
             ws = variations[page_direction][page_day]['state']['current_sheet']
             column_offset = variations[page_direction][page_day]['state']['column']
-        
+
         for i, row in enumerate(output):
             for j, column in enumerate(row):
 
@@ -164,7 +164,7 @@ for page in soup.pdf2xml.find_all('page'):
 
                     if time_regex.match(column):
                         time_values = time_regex.match(column).groups(0)
-                        
+
                         detail_letter = time_values[1] if len(time_values[1]) == 1 else time_values[1].strip()
                         val = time_values[0] + detail_letter + time_values[2]
 
@@ -174,7 +174,7 @@ for page in soup.pdf2xml.find_all('page'):
                             val += u'½'
                         elif time_values[3] == '34':
                             val += u'¾'
-            
+
                         ws.write(i, j + column_offset, val, selected_style)
                     else:
                         ws.write(i, j + column_offset, column, selected_style)
