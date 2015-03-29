@@ -46,7 +46,7 @@ BOLD_ITALIC_STYLE = easyxf('font: height 140, bold true, italic true;')
 
 
 ### SET LINE HERE
-line = linedata.DISTRICT
+line = linedata.NORTHERN
 
 
 line_name = line['line_name']
@@ -261,6 +261,7 @@ for page in soup.pdf2xml.find_all('page'):
                                 if not possible_trips[0].set_no and output[1][j]:
                                     set_no = re.search('(\d+)', output[1][j].strip()).group(0)
                                     trip_no = output[2][j]
+                                    platform = None
 
                                     # Some lines contain NR headcodes in their set no data which matches the regex.
                                     if set_no and trip_no:
@@ -270,14 +271,24 @@ for page in soup.pdf2xml.find_all('page'):
                                             trip=possible_trips[0].trip
                                         )
 
+                                        # Is this one with a platform in the sidebar?
+                                        if rows[page_direction]['platforms'].get(i) and isinstance(rows[page_direction]['platforms'][i], int):
+                                            platform = rows[page_direction]['platforms'][i]
+
                                         for timepoint in time_point_query.all():
                                             timepoint.set_no = set_no
                                             timepoint.trip_no = trip_no
+                                            if platform:
+                                                timepoint.platform = platform
+
+
 
                                 session.commit()
                     else:
                         #### IMPORTANT - Currently won't do platforms for trains after midnight
                         #### Also double Edgware Roads won't work
+                        #### This is for platforms specified on the main WTT. For those listed in the
+                        #### sidebar, see above.
                         if rows[page_direction]['platforms'].get(i) and re.search('(\d+)', column.strip()):
                             servicepoints_query = session.query(
                                 ServicePoint
