@@ -40,6 +40,124 @@ ARRIVAL_OFFSETS = {
 }
 
 
+# Central
+CENTRAL = {
+    'line_name': 'Central',
+    'line_id': 'C',
+
+    'variations': {
+                    WESTBOUND:
+                            {
+                                WEEKDAYS: {'output': None, 'state': {}},
+                                SATURDAY: {'output': None, 'state': {}},
+                                SUNDAY  : {'output': None, 'state': {}}
+                            },
+                    EASTBOUND:
+                            {
+                                WEEKDAYS: {'output': None, 'state': {}},
+                                SATURDAY: {'output': None, 'state': {}},
+                                SUNDAY  : {'output': None, 'state': {}}
+                            }
+                },
+
+    'columns': [160, 198, 231, 263, 296, 328, 361, 393, 426, 458, 490, 523, 555, 588, 620, 653, 685, 718, 750, 782, 815, 892],
+
+    # Everything before this 'top' is header.
+    'header': 108,
+
+    # Everything before these are row names
+    'row_names': [],
+
+    'rows': {
+                WESTBOUND : {
+                                'rows'      : [108, 126, 144, 153, 161, 179, 187, 196, 205, 213, 222, 231, 239, 248, 257, 265, 274, 283, 292, 300, 309, 318, 326, 335, 343, 352, 361, 369, 378, 387, 396, 405, 413, 422, 431, 439, 448, 457, 465, 474, 482, 491, 500, 509, 517, 526, 535, 544, 552, 561, 570, 578, 587, 596, 604, 613, 636],
+                                'nodashrows': [],
+                                'tableoffsets':[0, 527],
+                                'stations': {
+                                    9: 'EPP',
+                                    10: 'DEB',
+                                    11: 'LTN',
+                                    14: 'BHL',
+                                    18: 'HAI',
+                                    19: 'GRH',
+                                    20: 'ROD',
+                                    22: 'WFD',
+                                    25: 'NEP',
+                                    26: 'RED',
+                                    27: 'LYS',
+                                    30: 'SFD',
+                                    31: 'BNG',
+                                    33: 'LST',
+                                    34: 'HOL',
+                                    35: 'MAR',
+                                    36: 'QWY',
+                                    39: 'WCT',
+                                    41: 'NAC',
+                                    44: 'EBY',
+                                    47: 'PER',
+                                    48: 'NHT',
+                                    49: 'RUG',
+                                    51: 'WRP',
+                                },
+                                'platforms': {
+                                    8: 'EPP',
+                                    12: 'LTN',
+                                    17: 'HAI',
+                                    21: 'WFD',
+                                    28: 'LYS',
+                                    40: 'WCT',
+                                    42: 'NAC',
+                                    45: 'EBY',
+                                    52: 'WRP',
+                                },
+                                'direction': 'W'
+                            },
+                EASTBOUND : {
+                                'rows'      : [108, 126, 144, 153, 161, 179, 187, 196, 205, 213, 222, 231, 239, 248, 257, 265, 274, 283, 292, 300, 309, 318, 326, 335, 343, 352, 361, 369, 378, 387, 396, 405, 413, 422, 431, 439, 448, 457, 465, 474, 482, 491, 500, 509, 517, 526, 535, 544, 552, 561, 570, 578, 587, 596, 604, 613, 622, 636],
+                                'nodashrows': [],
+                                'tableoffsets':[0, 527],
+                                'stations': {
+                                    9: 'WRP',
+                                    11: 'RUG',
+                                    12: 'NHT',
+                                    13: 'PER',
+                                    16: 'EBY',
+                                    19: 'NAC',
+                                    21: 'WCT',
+                                    24: 'QWY',
+                                    25: 'MAR',
+                                    26: 'HOL',
+                                    27: 'LST',
+                                    29: 'BNG',
+                                    30: 'SFD',
+                                    33: 'LYS',
+                                    34: 'RED',
+                                    35: 'NEP',
+                                    38: 'WFD',
+                                    40: 'ROD',
+                                    41: 'GRH',
+                                    42: 'HAI',
+                                    46: 'BHL',
+                                    49: 'LTN',
+                                    50: 'DEB',
+                                    51: 'EPP',
+                                },
+                                'platforms': {
+                                    8: 'WRP',
+                                    15: 'EBY',
+                                    18: 'NAC',
+                                    20: 'WCT',
+                                    32: 'LYS',
+                                    39: 'WFD',
+                                    43: 'HAI',
+                                    48: 'LTN',
+                                    52: 'EPP',
+                                },
+                                'direction': 'E'
+                            }
+            }
+}
+
 # District
 DISTRICT = {
     'line_name': 'District',
