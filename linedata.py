@@ -25,47 +25,47 @@
 # Underground or Transport for London in any way.
 
 # Tube directions
-EASTBOUND = 'EASTBOUND'
-WESTBOUND = 'WESTBOUND'
-NORTHBOUND = 'NORTHBOUND'
-SOUTHBOUND = 'SOUTHBOUND'
-NORTHWESTBOUND = 'NORTH/WESTBOUND'
-SOUTHEASTBOUND = 'SOUTH/EASTBOUND'
+EASTBOUND = "EASTBOUND"
+WESTBOUND = "WESTBOUND"
+NORTHBOUND = "NORTHBOUND"
+SOUTHBOUND = "SOUTHBOUND"
+NORTHWESTBOUND = "NORTH/WESTBOUND"
+SOUTHEASTBOUND = "SOUTH/EASTBOUND"
 
 # Tube operating days
-WEEKDAYS = 'MONDAYS TO FRIDAYS'
-MONDAY = 'MONDAYS'
-TUEWED = 'TUESDAYS AND WEDNESDAYS'
-THURSDAY = 'THURSDAYS'
-FRIDAY = 'FRIDAYS'
-SATURDAY = 'SATURDAYS'
-SUNDAY = 'SUNDAYS'
+WEEKDAYS = "MONDAYS TO FRIDAYS"
+MONDAY = "MONDAYS"
+TUEWED = "TUESDAYS AND WEDNESDAYS"
+THURSDAY = "THURSDAYS"
+FRIDAY = "FRIDAYS"
+SATURDAY = "SATURDAYS"
+SUNDAY = "SUNDAYS"
 
 
 ARRIVAL_OFFSETS = {
-    '+': 15,
-    'a': 30,
-    'A': 45,
-    'b': 60,
-    'B': 75,
-    'c': 90,
-    'C': 105,
-    'd': 120,
-    'D': 135,
-    'e': 150,
-    'E': 165,
-    'f': 180,
-    'F': 195,
-    'g': 210,
-    'G': 225,
-    'h': 240,
-    'H': 255,
-    'j': 270,
-    'J': 285,
-    'k': 300,
-    'K': 315,
-    'l': 330,
-    'L': 345,
+    "+": 15,
+    "a": 30,
+    "A": 45,
+    "b": 60,
+    "B": 75,
+    "c": 90,
+    "C": 105,
+    "d": 120,
+    "D": 135,
+    "e": 150,
+    "E": 165,
+    "f": 180,
+    "F": 195,
+    "g": 210,
+    "G": 225,
+    "h": 240,
+    "H": 255,
+    "j": 270,
+    "J": 285,
+    "k": 300,
+    "K": 315,
+    "l": 330,
+    "L": 345,
 }
 
 
