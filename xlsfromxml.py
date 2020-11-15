@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
 #!/usr/bin/python
 
-# London Underground Working Timetable Spreadsheet converter
-# Created as part of the tubetimes project at http://tubetim.es/
+# London Underground Working Timetable PDF converter
 #
-# Copyright (c) 2013-2017 Kirk Northrop <kirk@krn.me.uk>
+# Copyright (c) 2013-2020 Kirk Northrop <kirk@krn.me.uk>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -27,10 +26,12 @@
 # This software is not endorsed, supported by or linked with London
 # Underground or Transport for London in any way.
 
-from bs4 import BeautifulSoup
 import re
 import sys
+
+from bs4 import BeautifulSoup
 from xlwt import Workbook, easyxf
+
 import linedata
 
 # Default styles for Tube WTTs
@@ -39,41 +40,46 @@ BOLD_STYLE = easyxf('font: height 140, bold true;')
 ITALIC_STYLE = easyxf('font: height 140, italic true;')
 BOLD_ITALIC_STYLE = easyxf('font: height 140, bold true, italic true;')
 
+TIME_REGEX = re.compile('(\d\d)(\s*[A-Za-z+ ]\s*)(\d\d)(\d\d)?')
+STRIP_TAGS_REGEX = re.compile('(.*?)<.+?>(.*?)</.+>(.*?)')
 
 
 ### SET LINE HERE
-line = linedata.DISTRICT
+line = linedata.METROPOLITAN
 
 
 line_name = line['line_name']
-variations = line['variations']
+days = line['days']
+directions = line['directions']
 columns = line['columns']
 header = line['header']
 row_names = line['row_names']
 rows = line['rows']
 
-
-time_regex = re.compile('(\d\d)(\s*[A-Za-z+ ]\s*)(\d\d)(\d\d)?')
-strip_tags_regex = re.compile('(.*?)<.+?>(.*?)</.+>(.*?)')
-
-
 # So we need to create workbooks for all the variations
-for variation in variations:
-    for day in variations[variation]:
-        variations[variation][day]['output'] = Workbook(encoding='utf-8')
-        # Then in the state we want to store some things...
-        variations[variation][day]['state']['number_of_rows'] = len(rows[variation]['rows'])
-        variations[variation][day]['state']['current_column'] = 0
+variations = {}
+for direction in directions:
+    variations[direction] = {}
+    for day in days:
+        variations[direction][day] = {
+            'output': Workbook(encoding='utf-8'),
+            'state': {
+                'number_of_rows': len(rows[direction]['rows']),
+                'current_column': 0,
+            }
+        }
 
 # Get the xml and create the soup
 f = open(sys.argv[1], 'r')
-print 'Creating soup...'
-soup = BeautifulSoup(f)
+print('Creating soup...')
+soup = BeautifulSoup(f, 'lxml')
+
+lefts = {}
 
 # Then for each page...
 for page in soup.pdf2xml.find_all('page'):
 
-    print 'Processing page ' + page['number']
+    print('Processing page ' + page['number'])
 
     page_direction = None
     page_day = None
@@ -83,11 +89,11 @@ for page in soup.pdf2xml.find_all('page'):
     for text in page.find_all('text'):
         if int(text['top']) < header:
             for direction in possible_directions:
-                if direction in text.renderContents():
+                if direction in text.renderContents().decode('utf-8'):
                     page_direction = direction
                     break
-            for day in linedata.POSSIBLE_DAYS:
-                if day in text.renderContents():
+            for day in days:
+                if day in text.renderContents().decode('utf-8'):
                     page_day = day
                     break
 
@@ -102,7 +108,7 @@ for page in soup.pdf2xml.find_all('page'):
                 col_no = None
 
                 for i, col in enumerate(columns):
-                    if int(text['left']) < col-1:
+                    if int(text['left']) < col:
                         col_no = i + (len(columns) * offset_index)
                         break
 
@@ -112,23 +118,24 @@ for page in soup.pdf2xml.find_all('page'):
                         break
 
                 if row_no is not None and col_no is not None:
-                    cell_value = text.renderContents()
+                    cell_value = text.renderContents().decode('utf-8').strip()
 
                     if text.find_all(True):
-                        if len(text.find_all('b')):
-                            fonts[row_no][col_no]['bold'] = True
-                        if len(text.find_all('i')):
-                            fonts[row_no][col_no]['italic'] = True
+                        cell_value = STRIP_TAGS_REGEX.sub('\g<1>\g<2>\g<3>', cell_value).strip()
 
-                        cell_value = strip_tags_regex.sub('\g<1>\g<2>\g<3>', cell_value)
+                        if cell_value:
+                            if len(text.find_all('b')):
+                                fonts[row_no][col_no]['bold'] = True
+                            if len(text.find_all('i')):
+                                fonts[row_no][col_no]['italic'] = True
 
                     if row_no is not None and col_no is not None and cell_value:
                         output[row_no][col_no] += str(cell_value)
 
             for i, row in enumerate(output):
                 for column in row:
-                    if time_regex.match(column):
-                        time_values = time_regex.match(column).groups(0)
+                    if TIME_REGEX.match(column):
+                        time_values = TIME_REGEX.match(column).groups(0)
 
                         detail_letter = time_values[1] if len(time_values[1]) == 1 else time_values[1].strip()
                         column = time_values[0] + detail_letter + time_values[2]
@@ -162,8 +169,8 @@ for page in soup.pdf2xml.find_all('page'):
                         selected_style = ITALIC_STYLE
 
 
-                    if time_regex.match(column):
-                        time_values = time_regex.match(column).groups(0)
+                    if TIME_REGEX.match(column):
+                        time_values = TIME_REGEX.match(column).groups(0)
 
                         detail_letter = time_values[1] if len(time_values[1]) == 1 else time_values[1].strip()
                         val = time_values[0] + detail_letter + time_values[2]

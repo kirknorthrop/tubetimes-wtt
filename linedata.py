@@ -1,4 +1,4 @@
-# London Underground Working Timetable Spreadsheet converter
+# London Underground Working Timetable PDF converter
 # Created as part of the tubetimes project at http://tubetim.es/
 #
 # Copyright (c) 2013-2017 Kirk Northrop <kirk@krn.me.uk>
@@ -34,10 +34,13 @@ SOUTHEASTBOUND = 'SOUTH/EASTBOUND'
 
 # Tube operating days
 WEEKDAYS = 'MONDAYS TO FRIDAYS'
+MONDAY = 'MONDAYS'
+TUEWED = 'TUESDAYS AND WEDNESDAYS'
+THURSDAY = 'THURSDAYS'
+FRIDAY = 'FRIDAYS'
 SATURDAY = 'SATURDAYS'
 SUNDAY = 'SUNDAYS'
 
-POSSIBLE_DAYS = [WEEKDAYS, SATURDAY, SUNDAY]
 
 ARRIVAL_OFFSETS = {
     '+': 15,
@@ -70,21 +73,8 @@ ARRIVAL_OFFSETS = {
 CENTRAL = {
     'line_name': 'Central',
     'line_id': 'C',
-
-    'variations': {
-                    WESTBOUND:
-                            {
-                                WEEKDAYS: {'output': None, 'state': {}},
-                                SATURDAY: {'output': None, 'state': {}},
-                                SUNDAY  : {'output': None, 'state': {}}
-                            },
-                    EASTBOUND:
-                            {
-                                WEEKDAYS: {'output': None, 'state': {}},
-                                SATURDAY: {'output': None, 'state': {}},
-                                SUNDAY  : {'output': None, 'state': {}}
-                            }
-                },
+    'days': [WEEKDAYS, SATURDAY, SUNDAY],
+    'diirections': [WESTBOUND, EASTBOUND],
 
     'columns': [160, 198, 231, 263, 296, 328, 361, 393, 426, 458, 490, 523, 555, 588, 620, 653, 685, 718, 750, 782, 815, 892],
 
@@ -188,21 +178,8 @@ CENTRAL = {
 DISTRICT = {
     'line_name': 'District',
     'line_id': 'D',
-
-    'variations': {
-                    WESTBOUND:
-                            {
-                                WEEKDAYS: {'output': None, 'state': {}},
-                                SATURDAY: {'output': None, 'state': {}},
-                                SUNDAY  : {'output': None, 'state': {}}
-                            },
-                    EASTBOUND:
-                            {
-                                WEEKDAYS: {'output': None, 'state': {}},
-                                SATURDAY: {'output': None, 'state': {}},
-                                SUNDAY  : {'output': None, 'state': {}}
-                            }
-                },
+    'days': [WEEKDAYS, SATURDAY, SUNDAY],
+    'directions': [WESTBOUND, EASTBOUND],
 
     'columns': [160, 198, 231, 263, 296, 328, 361, 393, 426, 458, 490, 523, 555, 588, 620, 653, 685, 718, 750, 782, 815, 892],
 
@@ -310,21 +287,8 @@ DISTRICT = {
 JUBILEE = {
     'line_name': 'Jubilee',
     'line_id': 'J',
-
-    'variations': {
-                    NORTHWESTBOUND:
-                            {
-                                WEEKDAYS: {'output': None, 'state': {}},
-                                SATURDAY: {'output': None, 'state': {}},
-                                SUNDAY  : {'output': None, 'state': {}}
-                            },
-                    SOUTHEASTBOUND:
-                            {
-                                WEEKDAYS: {'output': None, 'state': {}},
-                                SATURDAY: {'output': None, 'state': {}},
-                                SUNDAY  : {'output': None, 'state': {}}
-                            }
-                },
+    'days': [WEEKDAYS, SATURDAY, SUNDAY],
+    'directions': [NORTHWESTBOUND, SOUTHEASTBOUND],
 
     'columns': [160, 198, 231, 263, 296, 328, 361, 393, 426, 458, 490, 523, 555, 588, 620, 653, 685, 718, 750, 782, 815, 892],
 
@@ -430,23 +394,11 @@ JUBILEE = {
 METROPOLITAN = {
     'line_name': 'Metropolitan',
     'line_id': 'M',
+    # 'days': [WEEKDAYS, SATURDAY, SUNDAY],
+    'days': [MONDAY, TUEWED, THURSDAY, FRIDAY, SATURDAY, SUNDAY],
+    'directions': [NORTHBOUND, SOUTHBOUND],
 
-    'variations': {
-                    NORTHBOUND:
-                            {
-                                WEEKDAYS: {'output': None, 'state': {}},
-                                SATURDAY: {'output': None, 'state': {}},
-                                SUNDAY  : {'output': None, 'state': {}}
-                            },
-                    SOUTHBOUND:
-                            {
-                                WEEKDAYS: {'output': None, 'state': {}},
-                                SATURDAY: {'output': None, 'state': {}},
-                                SUNDAY  : {'output': None, 'state': {}}
-                            }
-                },
-
-    'columns': [160, 198, 231, 263, 296, 328, 361, 393, 426, 458, 490, 523, 555, 588, 620, 653, 685, 718, 750, 782, 815, 892],
+    'columns': [160, 198, 231, 263, 296, 328, 361, 392, 426, 458, 490, 523, 555, 588, 620, 652, 685, 718, 750, 782, 815, 892],
 
     # Everything before this 'top' is header.
     'header': 108,
@@ -472,21 +424,8 @@ METROPOLITAN = {
 NORTHERN = {
     'line_name': 'Northern',
     'line_id': 'N',
-
-    'variations': {
-                    NORTHBOUND:
-                            {
-                                WEEKDAYS: {'output': None, 'state': {}},
-                                SATURDAY: {'output': None, 'state': {}},
-                                SUNDAY  : {'output': None, 'state': {}}
-                            },
-                    SOUTHBOUND:
-                            {
-                                WEEKDAYS: {'output': None, 'state': {}},
-                                SATURDAY: {'output': None, 'state': {}},
-                                SUNDAY  : {'output': None, 'state': {}}
-                            }
-                },
+    'days': [WEEKDAYS, SATURDAY, SUNDAY],
+    'directions': [NORTHBOUND, SOUTHBOUND],
 
     'columns': [160, 198, 231, 263, 296, 328, 361, 393, 426, 458, 490, 523, 555, 588, 620, 653, 685, 718, 750, 782, 815, 892],
 
@@ -590,26 +529,12 @@ NORTHERN = {
             }
 }
 
-
 # Piccadilly
 PICCADILLY = {
     'line_name': 'Piccadilly',
     'line_id': 'P',
-
-    'variations': {
-                    WESTBOUND:
-                            {
-                                WEEKDAYS: {'output': None, 'state': {}},
-                                SATURDAY: {'output': None, 'state': {}},
-                                SUNDAY  : {'output': None, 'state': {}}
-                            },
-                    EASTBOUND:
-                            {
-                                WEEKDAYS: {'output': None, 'state': {}},
-                                SATURDAY: {'output': None, 'state': {}},
-                                SUNDAY  : {'output': None, 'state': {}}
-                            }
-                },
+    'days': [WEEKDAYS, SATURDAY, SUNDAY],
+    'directions': [WESTBOUND, EASTBOUND],
 
     'columns': [160, 198, 231, 263, 296, 328, 361, 393, 426, 458, 490, 523, 555, 588, 620, 653, 685, 718, 750, 782, 815, 892],
 
@@ -717,21 +642,8 @@ PICCADILLY = {
 VICTORIA = {
     'line_name': 'Victoria',
     'line_id': 'V',
-
-    'variations': {
-                    NORTHBOUND:
-                            {
-                                WEEKDAYS: {'output': None, 'state': {}},
-                                SATURDAY: {'output': None, 'state': {}},
-                                SUNDAY  : {'output': None, 'state': {}}
-                            },
-                    SOUTHBOUND:
-                            {
-                                WEEKDAYS: {'output': None, 'state': {}},
-                                SATURDAY: {'output': None, 'state': {}},
-                                SUNDAY  : {'output': None, 'state': {}}
-                            }
-                },
+    'days': [WEEKDAYS, SATURDAY, SUNDAY],
+    'directions': [NORTHBOUND, SOUTHBOUND],
 
     'columns': [160, 198, 231, 263, 296, 328, 361, 393, 426, 458, 490, 523, 555, 588, 620, 653, 685, 718, 750, 782, 815, 892],
 
