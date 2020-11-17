@@ -30,15 +30,8 @@ import re
 import sys
 
 from bs4 import BeautifulSoup
-from xlwt import Workbook, easyxf
 
 import linedata
-
-# Default styles for Tube WTTs
-NORMAL_STYLE = easyxf("font: height 140;")
-BOLD_STYLE = easyxf("font: height 140, bold true;")
-ITALIC_STYLE = easyxf("font: height 140, italic true;")
-BOLD_ITALIC_STYLE = easyxf("font: height 140, bold true, italic true;")
 
 TIME_REGEX = re.compile("(\d\d)(\s*[A-Za-z+ ]\s*)(\d\d)(\d\d)?")
 STRIP_TAGS_REGEX = re.compile("(.*?)<.+?>(.*?)</.+>(.*?)")
@@ -49,7 +42,6 @@ line = linedata.METROPOLITAN
 
 
 line_name = line["line_name"]
-days = line["days"]
 directions = line["directions"]
 columns = line["columns"]
 header = line["header"]
@@ -60,14 +52,7 @@ rows = line["rows"]
 variations = {}
 for direction in directions:
     variations[direction] = {}
-    for day in days:
-        variations[direction][day] = {
-            "output": [],
-            "state": {
-                "number_of_rows": len(rows[direction]["rows"]),
-                "current_column": 0,
-            },
-        }
+
 
 # Get the xml and create the soup
 f = open(sys.argv[1], "r")
@@ -92,10 +77,23 @@ for page in soup.pdf2xml.find_all("page"):
                 if direction in text.renderContents().decode("utf-8"):
                     page_direction = direction
                     break
-            for day in days:
-                if day in text.renderContents().decode("utf-8"):
-                    page_day = day
-                    break
+
+            if not page_day:
+                possible_day = re.search(
+                    "([A-Za-z, 0-9]+DAY[A-Za-z, 0-9]+)",
+                    text.renderContents().decode("utf-8"),
+                )
+                if possible_day:
+                    page_day = possible_day.groups()[0]
+
+    if page_direction and page_day and variations.get(page_direction, {}).get(page_day) is None:
+        variations[page_direction][page_day] = {
+            "output": [],
+            "state": {
+                "number_of_rows": len(rows[page_direction]["rows"]),
+                "current_column": 0,
+            },
+        }
 
     if page_direction and page_day:
         output = [
@@ -182,23 +180,6 @@ for page in soup.pdf2xml.find_all("page"):
                         elif time_values[3] == "34":
                             column += "¾"
 
-        # if (
-        #     variations[page_direction][page_day]["state"].get("column", None) is None
-        #     or (
-        #         variations[page_direction][page_day]["state"].get("column")
-        #         + len(output[0])
-        #     )
-        #     > 255
-        # ):
-        #     ws = variations[page_direction][page_day]["output"].add_sheet(
-        #         "Page " + page["number"]
-        #     )
-        #     # variations[page_direction][page_day]["state"]["current_sheet"] = ws
-        #     column_offset = 0
-        # # else:
-        # # ws = variations[page_direction][page_day]["state"]["current_sheet"]
-        # column_offset = variations[page_direction][page_day]["state"]["column"]
-
         column_offset = 0
 
         for i, row in enumerate(output):
@@ -210,15 +191,6 @@ for page in soup.pdf2xml.find_all("page"):
                     column_offset > 0
                     and j not in [0, 1, len(columns), len(columns) + 1]
                 ):
-                    selected_style = NORMAL_STYLE
-
-                    if fonts[i][j]["bold"] and fonts[i][j]["italic"]:
-                        selected_style = BOLD_ITALIC_STYLE
-                    if fonts[i][j]["bold"]:
-                        selected_style = BOLD_STYLE
-                    if fonts[i][j]["italic"]:
-                        selected_style = ITALIC_STYLE
-
                     if TIME_REGEX.match(column):
                         time_values = TIME_REGEX.match(column).groups(0)
 
@@ -237,10 +209,18 @@ for page in soup.pdf2xml.find_all("page"):
                             val += "¾"
 
                         output[i][j] = val
+
                         # ws.write(i, j + column_offset, val, selected_style)
                     else:
                         pass
                         # ws.write(i, j + column_offset, column, selected_style)
+
+                    if fonts[i][j]["bold"] and fonts[i][j]["italic"]:
+                        output[i][j] = f"<b><i>{output[i][j]}"
+                    if fonts[i][j]["bold"]:
+                        output[i][j] = f"<b>{output[i][j]}"
+                    if fonts[i][j]["italic"]:
+                        output[i][j] = f"<i>{output[i][j]}"
 
         variations[page_direction][page_day]["state"]["column"] = j + column_offset + 1
         if variations[page_direction][page_day]["output"]:
